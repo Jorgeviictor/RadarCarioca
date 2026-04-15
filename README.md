@@ -1,154 +1,236 @@
-# Radar Carioca — Android Studio Setup
+# Radar Carioca
+
+Copiloto de segurança e lucratividade para motoristas de aplicativo no Rio de Janeiro.
+
+O app monitora ofertas de corrida em tempo real (Uber, 99) via AccessibilityService, analisa o destino contra um mapa geoespacial de risco e calcula a lucratividade líquida — tudo em menos de 1.500 ms, antes do motorista aceitar ou recusar.
+
+---
+
+## Arquitetura
+
+```
+Clean Architecture + MVVM + Hilt DI
+```
+
+```
+domain/          ← UseCases, interfaces de Repository e Service (zero dependência Android)
+data/            ← Implementações: Room (local), Firebase (remoto), DataStore (prefs)
+di/              ← Módulos Hilt especializados
+ui/              ← Jetpack Compose + ViewModels
+service/         ← ForegroundService, AccessibilityService, BootReceiver
+```
+
+**Módulos Hilt:**
+
+| Módulo | Responsabilidade |
+|---|---|
+| `DatabaseModule` | Room Database + DAOs |
+| `RepositoryModule` | Bindings Interface → Impl |
+| `ServiceModule` | RadarController, PermissionsChecker |
+| `AlertModule` | Firebase, IoDispatcher, DataSources |
+| `AuthModule` | FirebaseAuth, Firestore |
+
+**22 Use Cases** — toda a lógica de negócio fica no domínio, isolada de Android.
+
+---
 
 ## Pré-requisitos
+
 - Android Studio Hedgehog (2023.1.1) ou superior
 - JDK 17
 - Android SDK API 29+
-- Dispositivo ou emulador Android 10+
+- Dispositivo físico recomendado (AccessibilityService não detecta apps reais no emulador)
 
 ---
 
-## 1. Importar o projeto
+## Setup
 
-1. Abra o Android Studio
-2. **File → Open** → selecione a pasta `RadarCarioca`
-3. Aguarde o Gradle Sync (pode demorar na primeira vez — baixa ~200MB de dependências)
+### 1. Clonar e importar
 
----
-
-## 2. Configurar o Token do Mapbox (OBRIGATÓRIO)
-
-O Mapbox requer um access token para funcionar.
-
-### Passo 1: Criar conta gratuita
-Acesse https://account.mapbox.com e crie uma conta (plano free tem 100.000 geocodificações/mês grátis).
-
-### Passo 2: Adicionar o token
-Edite `app/build.gradle.kts` e substitua:
-```
-"pk.SEU_TOKEN_MAPBOX_AQUI"
-```
-pelo seu token real:
-```
-"pk.eyJ1IjoiXXXXX..."
+```bash
+git clone https://github.com/Jorgeviictor/RadarCarioca.git
 ```
 
-### Alternativa sem Mapbox (modo offline total)
-O app funciona mesmo sem o token — usa o fallback de coordenadas hardcoded no `GeocodingService.kt`.
-O alerta por keywords no texto (ex: "Chapadão", "Maré") também funciona sem geocodificação.
+Abra o Android Studio → **File → Open** → selecione a pasta `RadarCarioca`.
 
----
+### 2. Configurar chaves (local.properties)
 
-## 3. Substituir o GeoJSON (RECOMENDADO)
-
-O arquivo `app/src/main/assets/mapa_faccoes_rj.geojson` tem apenas 17 features de exemplo.
-
-Para usar seu arquivo completo com 3.369 features:
-1. Renomeie seu arquivo para `mapa_faccoes_rj.geojson`
-2. Substitua o arquivo em `app/src/main/assets/`
-3. Certifique-se que as features têm as propriedades `name` e `description`
-
----
-
-## 4. Configurar Firebase (OPCIONAL — para atualizações remotas)
-
-Para ativar atualizações do GeoJSON sem publicar nova versão:
-
-1. Acesse https://console.firebase.google.com
-2. Crie um projeto "radar-carioca"
-3. Adicione um app Android com package `com.radarcarioca`
-4. Baixe o `google-services.json` e coloque em `app/`
-5. Descomente a linha no `app/build.gradle.kts`:
-   ```kotlin
-   // id("com.google.gms.google-services") version "4.4.2"
-   ```
-
----
-
-## 5. Rodar o app
-
-### No emulador (limitações):
-- AccessibilityService não detecta apps reais (precisa de device físico)
-- Overlay funciona normalmente
-- Toda a lógica financeira e GeoJSON funciona
-
-### No dispositivo físico (recomendado):
-1. Ative **Modo Desenvolvedor** no Android
-2. Ative **Depuração USB**
-3. Conecte o dispositivo
-4. No Android Studio: **Run → Run 'app'**
-
-### Permissões a conceder no device:
-O app guia o usuário pelo Onboarding, mas caso precise manualmente:
-- **Acessibilidade**: Configurações → Acessibilidade → Radar Carioca → Ativar
-- **Overlay**: Configurações → Apps → Radar Carioca → Aparecer sobre outros apps
-- **Bateria**: Configurações → Apps → Radar Carioca → Bateria → Sem restrições
-
----
-
-## Estrutura do Projeto
-
-```
-app/src/main/java/com/radarcarioca/
-├── MainActivity.kt                    ← Navigation + Entry point
-├── RadarCariocaApp.kt                 ← Application + Hilt + Notification Channel
-├── data/
-│   ├── local/
-│   │   ├── Database.kt                ← Room DB (GeoFeature + RideHistory)
-│   │   └── DriverPreferences.kt       ← DataStore (configurações do motorista)
-│   └── model/
-│       └── Models.kt                  ← Todos os data classes
-├── di/
-│   └── AppModule.kt                   ← Hilt DI bindings
-├── financial/
-│   └── FinancialCalculator.kt         ← Motor de cálculo R$/KM, R$/H
-├── geo/
-│   └── GeoSecurityManager.kt          ← Parser GeoJSON + verificação de risco
-├── overlay/
-│   └── OverlayManager.kt              ← WindowManager + ComposeView flutuante
-├── service/
-│   ├── RadarAccessibilityService.kt   ← Leitura automática Uber/99
-│   ├── RadarForegroundService.kt      ← Watcher ininterrupto
-│   ├── RideProcessor.kt               ← Pipeline geo + financeiro
-│   ├── GeocodingService.kt            ← Texto → lat/lng (Mapbox + fallback)
-│   └── BootReceiver.kt                ← Reinicia após reboot
-└── ui/
-    ├── MainViewModel.kt               ← Estado da UI + lógica de negócio
-    ├── theme/
-    │   └── Theme.kt                   ← Paleta Azul Marinho + Dourado
-    └── screens/
-        ├── DashboardScreen.kt         ← Painel principal
-        ├── OverlayCard.kt             ← Semáforo glassmorphism
-        └── OtherScreens.kt            ← Onboarding, Settings, Stats
+```properties
+MAPS_API_KEY=sua_chave_google_maps
+ADMIN_MASTER_UID=uid_firebase_do_admin
+GOOGLE_WEB_CLIENT_ID=seu_web_client_id
 ```
 
+### 3. Firebase
+
+1. Crie um projeto em [console.firebase.google.com](https://console.firebase.google.com)
+2. Adicione app Android com package `com.radarcarioca`
+3. Baixe `google-services.json` e coloque em `app/`
+
+### 4. GeoJSON
+
+O arquivo `app/src/main/assets/mapa_faccoes_rj.geojson` contém as áreas de risco.
+Substitua pelo arquivo completo se disponível — as features precisam de `name` e `description`.
+
 ---
 
-## Fluxo de execução (resumo)
+## Rodar o app
+
+### Emulador
+
+```
+Run → Run 'app'
+```
+
+Toda a lógica financeira e GeoJSON funciona. AccessibilityService requer device físico.
+
+### Dispositivo físico
+
+1. Ative **Modo Desenvolvedor** → **Depuração USB**
+2. Conecte o dispositivo
+3. Conceda as permissões pelo Onboarding do app:
+   - Acessibilidade → Radar Carioca → Ativar
+   - Aparecer sobre outros apps
+   - Bateria → Sem restrições
+
+---
+
+## Testes
+
+### Estrutura
+
+| Pasta | Tipo | Execução |
+|---|---|---|
+| `src/test/` | Unitários (JVM puro) | Sem emulador, sem device |
+| `src/androidTest/` | Instrumentados | Requer emulador ou device |
+
+**Regra:** Use `test/` para tudo que envolve domínio e lógica de negócio. Use `androidTest/` apenas para testes que precisam de Context, Room in-memory com Android Runner, ou Compose UI.
+
+### Rodar os testes unitários
+
+```bash
+./gradlew test
+```
+
+Ou no Android Studio: clique com botão direito em `src/test/` → **Run Tests**.
+
+### Bibliotecas de teste
+
+| Biblioteca | Uso |
+|---|---|
+| JUnit 4 | Framework base de testes |
+| `kotlinx-coroutines-test` | `runTest` para suspend functions e Flows |
+| MockK | Mocks e spies para interfaces Kotlin |
+| Turbine | Testar `Flow<T>` de forma declarativa |
+
+### Cobertura atual
+
+| Arquivo de teste | O que testa |
+|---|---|
+| `HelloWorldTest` | Smoke test — valida o ambiente JUnit |
+| `GetActiveAlertsUseCaseTest` | Alertas ativos, filtro de inativos, emissão reativa |
+| `GetNearbyAlertsUseCaseTest` | Raio de busca, alertas fora do alcance, validação de parâmetros |
+| `RefreshAlertsUseCaseTest` | Refresh com sucesso, falha de rede, sem propagação de exceção |
+| `ToggleRadarUseCaseTest` | Ativar/desativar radar com MockK — permissões, boot state |
+| `ProcessRideOfferKeywordTest` | Fallback offline por palavra-chave (Maré, Alemão, Chapadão...) |
+| `CalculateRideProfitUseCaseTest` | Cálculo financeiro: lucro, deadhead, margem, validações |
+| `RideHistoryRepositoryTest` | Lucro total, contagens, remoção de registros antigos |
+
+### Exemplo de teste com Turbine
+
+```kotlin
+@Test
+fun `emite novo alerta adicionado em tempo real`() = runTest {
+    useCase().test {
+        val primeiro = awaitItem() as DataResult.Success
+        assertEquals(0, primeiro.data.size)
+
+        repository.add(fakeSecurityAlert(id = "novo"))
+
+        val segundo = awaitItem() as DataResult.Success
+        assertEquals(1, segundo.data.size)
+        cancelAndIgnoreRemainingEvents()
+    }
+}
+```
+
+### Exemplo de teste com MockK
+
+```kotlin
+@Test
+fun `ativar radar sem acessibilidade retorna false`() = runTest {
+    every { permissionsChecker.getSystemStatus() } returns accessibilityMissing
+
+    val result = useCase(currentlyActive = false)
+
+    assertFalse(result)
+    coVerify(exactly = 0) { driverSettingsRepository.setRadarEnabled(any()) }
+}
+```
+
+---
+
+## Fluxo de execução
 
 ```
 Uber/99 exibe oferta
         ↓
 RadarAccessibilityService captura texto (< 200ms)
         ↓
-GeocodingService converte endereço → lat/lng (< 800ms com internet, instantâneo offline)
+GeocodingService → lat/lng  (< 800ms online | instantâneo offline via keyword)
         ↓
-GeoSecurityManager.checkSafety(lat, lng) — verifica GeoJSON local
+CheckRideSafetyUseCase → GeoJSON local
         ↓
-FinancialCalculator.calculate() — R$/KM, R$/H, lucro líquido
+CalculateRideProfitUseCase → R$/KM, lucro líquido
         ↓
-OverlayManager.showAnalysis() — exibe card sobre o app
+OverlayManager → card flutuante (VERDE / AMARELO / VERMELHO)
         ↓
-TOTAL: < 1.500ms  ✓
+TOTAL < 1.500ms
 ```
 
 ---
 
-## Testes sem dispositivo físico
+## Commits semânticos sugeridos
 
-Para simular ofertas no emulador, use o ViewModel diretamente ou
-adicione um botão de debug no DashboardScreen que injeta uma `RideOffer`
-fake no `RadarAccessibilityService.rideOfferFlow`.
+```bash
+# Fase 1 — DI
+git commit -m "refactor(di): remove AppModule legado substituído por módulos especializados"
+
+# Fase 2 — Setup de testes
+git commit -m "test(config): adiciona MockK e Turbine ao build.gradle"
+git commit -m "test(smoke): cria HelloWorldTest para validar ambiente JUnit"
+
+# Fase 3 — Testes de UseCase
+git commit -m "test(alerts): cobre GetActiveAlertsUseCase e GetNearbyAlertsUseCase com Turbine"
+git commit -m "test(alerts): cobre RefreshAlertsUseCase — sucesso, erro de rede e segurança"
+git commit -m "test(radar): cobre ToggleRadarUseCase com MockK — permissões e boot state"
+git commit -m "test(geo): cobre fallback offline por palavra-chave do ProcessRideOfferUseCase"
+
+# Fase 4 — Documentação
+git commit -m "docs: atualiza README com arquitetura, setup e guia completo de testes"
+```
+
+---
+
+## Diário de Bordo
+
+### O que foi feito
+
+- **Limpeza de DI:** removido `AppModule.kt` legado (arquivo sem bindings, substituído por módulos especializados)
+- **Setup de testes:** adicionados MockK 1.13.12 e Turbine 1.1.0 ao `build.gradle.kts`
+- **8 arquivos de teste** cobrindo domínio completo: alertas, radar, financeiro, histórico e segurança geográfica
+
+### Maior dificuldade técnica
+
+**Testar Flows reativos com coroutines** — o padrão `flow.collect {}` trava o teste indefinidamente quando o Flow não completa (como `StateFlow` e `MutableStateFlow`).
+
+**Solução:** Turbine resolve com `flow.test { awaitItem(); cancelAndIgnoreRemainingEvents() }` — permite consumir emissões declarativamente e cancelar o coletor sem deadlock.
+
+### O que foi aprendido
+
+- `@Binds` é preferível a `@Provides` para bindings interface→impl: gera menos código e falha em compile-time
+- Separar `test/` de `androidTest/` não é só convenção — é uma decisão arquitetural que force a manter o domínio livre de dependências Android
+- MockK com `relaxed = true` elimina boilerplate de stub para dependências que não são o foco do teste
 
 ---
 
