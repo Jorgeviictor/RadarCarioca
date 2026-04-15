@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    RADAR CARIOCA — Configuração do AccessibilityService
+    Monitora APENAS os apps da Uber e 99 para capturar ofertas de corrida.
+    NÃO acessa dados pessoais de passageiros.
+-->
+<accessibility-service
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:accessibilityEventTypes="typeWindowContentChanged|typeWindowStateChanged|typeViewTextChanged|typeNotificationStateChanged"
+    android:packageNames="com.ubercab.driver,com.taxis99"
+    android:accessibilityFeedbackType="feedbackGeneric"
+    android:notificationTimeout="100"
+    android:accessibilityFlags="flagReportViewIds|flagRequestFilterKeyEvents|flagIncludeNotImportantViews"
+    android:canRetrieveWindowContent="true"
+    android:description="@string/accessibility_service_description"
+    android:settingsActivity=".MainActivity" />

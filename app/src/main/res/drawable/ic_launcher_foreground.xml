@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+
+    <!--
+        Letra "R" dourada — construída com paths vetoriais
+        Centralizadas em 108x108. Área segura: 72x72 (18..90)
+        Letras ocupam ~60% da área segura (43x43), posicionadas no centro.
+    -->
+
+    <!-- Borda circular dourada sutil -->
+    <path
+        android:fillColor="#00000000"
+        android:pathData="M54,16 A38,38 0 1,0 54,92 A38,38 0 1,0 54,16 Z"
+        android:strokeColor="#D4AF37"
+        android:strokeWidth="2.5" />
+
+    <!-- Letra "R" -->
+    <!-- Haste vertical -->
+    <path
+        android:fillColor="#D4AF37"
+        android:pathData="M28,30 L28,78 L33,78 L33,57 L42,57 L50,78 L56,78 L47.5,56.5
+                          C52,55 55,51 55,45.5
+                          C55,37 49,30 40,30 Z
+                          M33,35 L39.5,35
+                          C45,35 50,38.5 50,45.5
+                          C50,52 45.5,52 39.5,52
+                          L33,52 Z" />
+
+    <!-- Letra "C" -->
+    <path
+        android:fillColor="#D4AF37"
+        android:pathData="M80,40 C76,35 70,32 63,32
+                          C52,32 44,40 44,54
+                          C44,68 52,76 63,76
+                          C70,76 76,73 80,68
+                          L76,64.5
+                          C73,68 68.5,71 63,71
+                          C55,71 49,64 49,54
+                          C49,44 55,37 63,37
+                          C68.5,37 73,40 76,43.5 Z" />
+
+</vector>

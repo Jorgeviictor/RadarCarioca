@@ -1,0 +1,35 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "Architecture Diagram",
+      "runtimeExecutable": "npx",
+      "runtimeArgs": ["serve", "-l", "3000", "."],
+      "port": 3000
+    },
+    {
+      "name": "Build Debug APK",
+      "runtimeExecutable": "C:\\Windows\\System32\\cmd.exe",
+      "runtimeArgs": ["/c", "build_preview.bat"],
+      "port": 0
+    },
+    {
+      "name": "Install Debug on Device",
+      "runtimeExecutable": "C:\\Windows\\System32\\cmd.exe",
+      "runtimeArgs": ["/c", "gradlew.bat installDebug"],
+      "port": 0
+    },
+    {
+      "name": "Full Build",
+      "runtimeExecutable": "C:\\Windows\\System32\\cmd.exe",
+      "runtimeArgs": ["/c", "gradlew.bat build"],
+      "port": 0
+    },
+    {
+      "name": "Clean",
+      "runtimeExecutable": "C:\\Windows\\System32\\cmd.exe",
+      "runtimeArgs": ["/c", "gradlew.bat clean"],
+      "port": 0
+    }
+  ]
+}

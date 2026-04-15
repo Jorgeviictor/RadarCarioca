@@ -1,0 +1,805 @@
+package com.radarcarioca;
+
+import android.app.Activity;
+import android.app.Service;
+import android.view.View;
+import androidx.fragment.app.Fragment;
+import androidx.lifecycle.SavedStateHandle;
+import androidx.lifecycle.ViewModel;
+import com.google.errorprone.annotations.CanIgnoreReturnValue;
+import com.radarcarioca.billing.BillingManager;
+import com.radarcarioca.billing.SubscriptionRepositoryImpl;
+import com.radarcarioca.data.local.DriverPreferences;
+import com.radarcarioca.data.local.DriverSettingsRepositoryImpl;
+import com.radarcarioca.data.local.GeoFeatureDao;
+import com.radarcarioca.data.local.RadarDatabase;
+import com.radarcarioca.data.local.RideHistoryDao;
+import com.radarcarioca.data.repository.GeoRepositoryImpl;
+import com.radarcarioca.data.repository.RideHistoryRepositoryImpl;
+import com.radarcarioca.di.DatabaseModule_ProvideGeoFeatureDaoFactory;
+import com.radarcarioca.di.DatabaseModule_ProvideRadarDatabaseFactory;
+import com.radarcarioca.di.DatabaseModule_ProvideRideHistoryDaoFactory;
+import com.radarcarioca.domain.usecase.CalculateRideProfitUseCase;
+import com.radarcarioca.domain.usecase.CheckPermissionsStatusUseCase;
+import com.radarcarioca.domain.usecase.CheckRideSafetyUseCase;
+import com.radarcarioca.domain.usecase.CompleteOnboardingUseCase;
+import com.radarcarioca.domain.usecase.GetTodayStatsUseCase;
+import com.radarcarioca.domain.usecase.ObserveDriverSettingsUseCase;
+import com.radarcarioca.domain.usecase.ObserveSubscriptionAccessUseCase;
+import com.radarcarioca.domain.usecase.ProcessRideOfferUseCase;
+import com.radarcarioca.domain.usecase.RecordRideDecisionUseCase;
+import com.radarcarioca.domain.usecase.SaveDriverConfigUseCase;
+import com.radarcarioca.domain.usecase.ToggleRadarUseCase;
+import com.radarcarioca.financial.FinancialCalculator;
+import com.radarcarioca.geo.GeoSecurityManager;
+import com.radarcarioca.overlay.FloatingButtonManager;
+import com.radarcarioca.overlay.OverlayManager;
+import com.radarcarioca.service.GeocodingService;
+import com.radarcarioca.service.PermissionsCheckerImpl;
+import com.radarcarioca.service.RadarAccessibilityService;
+import com.radarcarioca.service.RadarControllerImpl;
+import com.radarcarioca.service.RadarForegroundService;
+import com.radarcarioca.service.RadarForegroundService_MembersInjector;
+import com.radarcarioca.ui.MainViewModel;
+import com.radarcarioca.ui.MainViewModel_HiltModules;
+import com.radarcarioca.util.ScreenshotPurgeManager;
+import dagger.hilt.android.ActivityRetainedLifecycle;
+import dagger.hilt.android.ViewModelLifecycle;
+import dagger.hilt.android.internal.builders.ActivityComponentBuilder;
+import dagger.hilt.android.internal.builders.ActivityRetainedComponentBuilder;
+import dagger.hilt.android.internal.builders.FragmentComponentBuilder;
+import dagger.hilt.android.internal.builders.ServiceComponentBuilder;
+import dagger.hilt.android.internal.builders.ViewComponentBuilder;
+import dagger.hilt.android.internal.builders.ViewModelComponentBuilder;
+import dagger.hilt.android.internal.builders.ViewWithFragmentComponentBuilder;
+import dagger.hilt.android.internal.lifecycle.DefaultViewModelFactories;
+import dagger.hilt.android.internal.lifecycle.DefaultViewModelFactories_InternalFactoryFactory_Factory;
+import dagger.hilt.android.internal.managers.ActivityRetainedComponentManager_LifecycleModule_ProvideActivityRetainedLifecycleFactory;
+import dagger.hilt.android.internal.managers.SavedStateHandleHolder;
+import dagger.hilt.android.internal.modules.ApplicationContextModule;
+import dagger.hilt.android.internal.modules.ApplicationContextModule_ProvideContextFactory;
+import dagger.internal.DaggerGenerated;
+import dagger.internal.DoubleCheck;
+import dagger.internal.IdentifierNameString;
+import dagger.internal.KeepFieldType;
+import dagger.internal.LazyClassKeyMap;
+import dagger.internal.Preconditions;
+import dagger.internal.Provider;
+import java.util.Collections;
+import java.util.Map;
+import java.util.Set;
+import javax.annotation.processing.Generated;
+
+@DaggerGenerated
+@Generated(
+    value = "dagger.internal.codegen.ComponentProcessor",
+    comments = "https://dagger.dev"
+)
+@SuppressWarnings({
+    "unchecked",
+    "rawtypes",
+    "KotlinInternal",
+    "KotlinInternalInJava",
+    "cast",
+    "deprecation"
+})
+public final class DaggerRadarCariocaApp_HiltComponents_SingletonC {
+  private DaggerRadarCariocaApp_HiltComponents_SingletonC() {
+  }
+
+  public static Builder builder() {
+    return new Builder();
+  }
+
+  public static final class Builder {
+    private ApplicationContextModule applicationContextModule;
+
+    private Builder() {
+    }
+
+    public Builder applicationContextModule(ApplicationContextModule applicationContextModule) {
+      this.applicationContextModule = Preconditions.checkNotNull(applicationContextModule);
+      return this;
+    }
+
+    public RadarCariocaApp_HiltComponents.SingletonC build() {
+      Preconditions.checkBuilderRequirement(applicationContextModule, ApplicationContextModule.class);
+      return new SingletonCImpl(applicationContextModule);
+    }
+  }
+
+  private static final class ActivityRetainedCBuilder implements RadarCariocaApp_HiltComponents.ActivityRetainedC.Builder {
+    private final SingletonCImpl singletonCImpl;
+
+    private SavedStateHandleHolder savedStateHandleHolder;
+
+    private ActivityRetainedCBuilder(SingletonCImpl singletonCImpl) {
+      this.singletonCImpl = singletonCImpl;
+    }
+
+    @Override
+    public ActivityRetainedCBuilder savedStateHandleHolder(
+        SavedStateHandleHolder savedStateHandleHolder) {
+      this.savedStateHandleHolder = Preconditions.checkNotNull(savedStateHandleHolder);
+      return this;
+    }
+
+    @Override
+    public RadarCariocaApp_HiltComponents.ActivityRetainedC build() {
+      Preconditions.checkBuilderRequirement(savedStateHandleHolder, SavedStateHandleHolder.class);
+      return new ActivityRetainedCImpl(singletonCImpl, savedStateHandleHolder);
+    }
+  }
+
+  private static final class ActivityCBuilder implements RadarCariocaApp_HiltComponents.ActivityC.Builder {
+    private final SingletonCImpl singletonCImpl;
+
+    private final ActivityRetainedCImpl activityRetainedCImpl;
+
+    private Activity activity;
+
+    private ActivityCBuilder(SingletonCImpl singletonCImpl,
+        ActivityRetainedCImpl activityRetainedCImpl) {
+      this.singletonCImpl = singletonCImpl;
+      this.activityRetainedCImpl = activityRetainedCImpl;
+    }
+
+    @Override
+    public ActivityCBuilder activity(Activity activity) {
+      this.activity = Preconditions.checkNotNull(activity);
+      return this;
+    }
+
+    @Override
+    public RadarCariocaApp_HiltComponents.ActivityC build() {
+      Preconditions.checkBuilderRequirement(activity, Activity.class);
+      return new ActivityCImpl(singletonCImpl, activityRetainedCImpl, activity);
+    }
+  }
+
+  private static final class FragmentCBuilder implements RadarCariocaApp_HiltComponents.FragmentC.Builder {
+    private final SingletonCImpl singletonCImpl;
+
+    private final ActivityRetainedCImpl activityRetainedCImpl;
+
+    private final ActivityCImpl activityCImpl;
+
+    private Fragment fragment;
+
+    private FragmentCBuilder(SingletonCImpl singletonCImpl,
+        ActivityRetainedCImpl activityRetainedCImpl, ActivityCImpl activityCImpl) {
+      this.singletonCImpl = singletonCImpl;
+      this.activityRetainedCImpl = activityRetainedCImpl;
+      this.activityCImpl = activityCImpl;
+    }
+
+    @Override
+    public FragmentCBuilder fragment(Fragment fragment) {
+      this.fragment = Preconditions.checkNotNull(fragment);
+      return this;
+    }
+
+    @Override
+    public RadarCariocaApp_HiltComponents.FragmentC build() {
+      Preconditions.checkBuilderRequirement(fragment, Fragment.class);
+      return new FragmentCImpl(singletonCImpl, activityRetainedCImpl, activityCImpl, fragment);
+    }
+  }
+
+  private static final class ViewWithFragmentCBuilder implements RadarCariocaApp_HiltComponents.ViewWithFragmentC.Builder {
+    private final SingletonCImpl singletonCImpl;
+
+    private final ActivityRetainedCImpl activityRetainedCImpl;
+
+    private final ActivityCImpl activityCImpl;
+
+    private final FragmentCImpl fragmentCImpl;
+
+    private View view;
+
+    private ViewWithFragmentCBuilder(SingletonCImpl singletonCImpl,
+        ActivityRetainedCImpl activityRetainedCImpl, ActivityCImpl activityCImpl,
+        FragmentCImpl fragmentCImpl) {
+      this.singletonCImpl = singletonCImpl;
+      this.activityRetainedCImpl = activityRetainedCImpl;
+      this.activityCImpl = activityCImpl;
+      this.fragmentCImpl = fragmentCImpl;
+    }
+
+    @Override
+    public ViewWithFragmentCBuilder view(View view) {
+      this.view = Preconditions.checkNotNull(view);
+      return this;
+    }
+
+    @Override
+    public RadarCariocaApp_HiltComponents.ViewWithFragmentC build() {
+      Preconditions.checkBuilderRequirement(view, View.class);
+      return new ViewWithFragmentCImpl(singletonCImpl, activityRetainedCImpl, activityCImpl, fragmentCImpl, view);
+    }
+  }
+
+  private static final class ViewCBuilder implements RadarCariocaApp_HiltComponents.ViewC.Builder {
+    private final SingletonCImpl singletonCImpl;
+
+    private final ActivityRetainedCImpl activityRetainedCImpl;
+
+    private final ActivityCImpl activityCImpl;
+
+    private View view;
+
+    private ViewCBuilder(SingletonCImpl singletonCImpl, ActivityRetainedCImpl activityRetainedCImpl,
+        ActivityCImpl activityCImpl) {
+      this.singletonCImpl = singletonCImpl;
+      this.activityRetainedCImpl = activityRetainedCImpl;
+      this.activityCImpl = activityCImpl;
+    }
+
+    @Override
+    public ViewCBuilder view(View view) {
+      this.view = Preconditions.checkNotNull(view);
+      return this;
+    }
+
+    @Override
+    public RadarCariocaApp_HiltComponents.ViewC build() {
+      Preconditions.checkBuilderRequirement(view, View.class);
+      return new ViewCImpl(singletonCImpl, activityRetainedCImpl, activityCImpl, view);
+    }
+  }
+
+  private static final class ViewModelCBuilder implements RadarCariocaApp_HiltComponents.ViewModelC.Builder {
+    private final SingletonCImpl singletonCImpl;
+
+    private final ActivityRetainedCImpl activityRetainedCImpl;
+
+    private SavedStateHandle savedStateHandle;
+
+    private ViewModelLifecycle viewModelLifecycle;
+
+    private ViewModelCBuilder(SingletonCImpl singletonCImpl,
+        ActivityRetainedCImpl activityRetainedCImpl) {
+      this.singletonCImpl = singletonCImpl;
+      this.activityRetainedCImpl = activityRetainedCImpl;
+    }
+
+    @Override
+    public ViewModelCBuilder savedStateHandle(SavedStateHandle handle) {
+      this.savedStateHandle = Preconditions.checkNotNull(handle);
+      return this;
+    }
+
+    @Override
+    public ViewModelCBuilder viewModelLifecycle(ViewModelLifecycle viewModelLifecycle) {
+      this.viewModelLifecycle = Preconditions.checkNotNull(viewModelLifecycle);
+      return this;
+    }
+
+    @Override
+    public RadarCariocaApp_HiltComponents.ViewModelC build() {
+      Preconditions.checkBuilderRequirement(savedStateHandle, SavedStateHandle.class);
+      Preconditions.checkBuilderRequirement(viewModelLifecycle, ViewModelLifecycle.class);
+      return new ViewModelCImpl(singletonCImpl, activityRetainedCImpl, savedStateHandle, viewModelLifecycle);
+    }
+  }
+
+  private static final class ServiceCBuilder implements RadarCariocaApp_HiltComponents.ServiceC.Builder {
+    private final SingletonCImpl singletonCImpl;
+
+    private Service service;
+
+    private ServiceCBuilder(SingletonCImpl singletonCImpl) {
+      this.singletonCImpl = singletonCImpl;
+    }
+
+    @Override
+    public ServiceCBuilder service(Service service) {
+      this.service = Preconditions.checkNotNull(service);
+      return this;
+    }
+
+    @Override
+    public RadarCariocaApp_HiltComponents.ServiceC build() {
+      Preconditions.checkBuilderRequirement(service, Service.class);
+      return new ServiceCImpl(singletonCImpl, service);
+    }
+  }
+
+  private static final class ViewWithFragmentCImpl extends RadarCariocaApp_HiltComponents.ViewWithFragmentC {
+    private final SingletonCImpl singletonCImpl;
+
+    private final ActivityRetainedCImpl activityRetainedCImpl;
+
+    private final ActivityCImpl activityCImpl;
+
+    private final FragmentCImpl fragmentCImpl;
+
+    private final ViewWithFragmentCImpl viewWithFragmentCImpl = this;
+
+    private ViewWithFragmentCImpl(SingletonCImpl singletonCImpl,
+        ActivityRetainedCImpl activityRetainedCImpl, ActivityCImpl activityCImpl,
+        FragmentCImpl fragmentCImpl, View viewParam) {
+      this.singletonCImpl = singletonCImpl;
+      this.activityRetainedCImpl = activityRetainedCImpl;
+      this.activityCImpl = activityCImpl;
+      this.fragmentCImpl = fragmentCImpl;
+
+
+    }
+  }
+
+  private static final class FragmentCImpl extends RadarCariocaApp_HiltComponents.FragmentC {
+    private final SingletonCImpl singletonCImpl;
+
+    private final ActivityRetainedCImpl activityRetainedCImpl;
+
+    private final ActivityCImpl activityCImpl;
+
+    private final FragmentCImpl fragmentCImpl = this;
+
+    private FragmentCImpl(SingletonCImpl singletonCImpl,
+        ActivityRetainedCImpl activityRetainedCImpl, ActivityCImpl activityCImpl,
+        Fragment fragmentParam) {
+      this.singletonCImpl = singletonCImpl;
+      this.activityRetainedCImpl = activityRetainedCImpl;
+      this.activityCImpl = activityCImpl;
+
+
+    }
+
+    @Override
+    public DefaultViewModelFactories.InternalFactoryFactory getHiltInternalFactoryFactory() {
+      return activityCImpl.getHiltInternalFactoryFactory();
+    }
+
+    @Override
+    public ViewWithFragmentComponentBuilder viewWithFragmentComponentBuilder() {
+      return new ViewWithFragmentCBuilder(singletonCImpl, activityRetainedCImpl, activityCImpl, fragmentCImpl);
+    }
+  }
+
+  private static final class ViewCImpl extends RadarCariocaApp_HiltComponents.ViewC {
+    private final SingletonCImpl singletonCImpl;
+
+    private final ActivityRetainedCImpl activityRetainedCImpl;
+
+    private final ActivityCImpl activityCImpl;
+
+    private final ViewCImpl viewCImpl = this;
+
+    private ViewCImpl(SingletonCImpl singletonCImpl, ActivityRetainedCImpl activityRetainedCImpl,
+        ActivityCImpl activityCImpl, View viewParam) {
+      this.singletonCImpl = singletonCImpl;
+      this.activityRetainedCImpl = activityRetainedCImpl;
+      this.activityCImpl = activityCImpl;
+
+
+    }
+  }
+
+  private static final class ActivityCImpl extends RadarCariocaApp_HiltComponents.ActivityC {
+    private final SingletonCImpl singletonCImpl;
+
+    private final ActivityRetainedCImpl activityRetainedCImpl;
+
+    private final ActivityCImpl activityCImpl = this;
+
+    private ActivityCImpl(SingletonCImpl singletonCImpl,
+        ActivityRetainedCImpl activityRetainedCImpl, Activity activityParam) {
+      this.singletonCImpl = singletonCImpl;
+      this.activityRetainedCImpl = activityRetainedCImpl;
+
+
+    }
+
+    @Override
+    public void injectMainActivity(MainActivity mainActivity) {
+      injectMainActivity2(mainActivity);
+    }
+
+    @Override
+    public DefaultViewModelFactories.InternalFactoryFactory getHiltInternalFactoryFactory() {
+      return DefaultViewModelFactories_InternalFactoryFactory_Factory.newInstance(getViewModelKeys(), new ViewModelCBuilder(singletonCImpl, activityRetainedCImpl));
+    }
+
+    @Override
+    public Map<Class<?>, Boolean> getViewModelKeys() {
+      return LazyClassKeyMap.<Boolean>of(Collections.<String, Boolean>singletonMap(LazyClassKeyProvider.com_radarcarioca_ui_MainViewModel, MainViewModel_HiltModules.KeyModule.provide()));
+    }
+
+    @Override
+    public ViewModelComponentBuilder getViewModelComponentBuilder() {
+      return new ViewModelCBuilder(singletonCImpl, activityRetainedCImpl);
+    }
+
+    @Override
+    public FragmentComponentBuilder fragmentComponentBuilder() {
+      return new FragmentCBuilder(singletonCImpl, activityRetainedCImpl, activityCImpl);
+    }
+
+    @Override
+    public ViewComponentBuilder viewComponentBuilder() {
+      return new ViewCBuilder(singletonCImpl, activityRetainedCImpl, activityCImpl);
+    }
+
+    @CanIgnoreReturnValue
+    private MainActivity injectMainActivity2(MainActivity instance) {
+      MainActivity_MembersInjector.injectBillingManager(instance, singletonCImpl.billingManagerProvider.get());
+      return instance;
+    }
+
+    @IdentifierNameString
+    private static final class LazyClassKeyProvider {
+      static String com_radarcarioca_ui_MainViewModel = "com.radarcarioca.ui.MainViewModel";
+
+      @KeepFieldType
+      MainViewModel com_radarcarioca_ui_MainViewModel2;
+    }
+  }
+
+  private static final class ViewModelCImpl extends RadarCariocaApp_HiltComponents.ViewModelC {
+    private final SingletonCImpl singletonCImpl;
+
+    private final ActivityRetainedCImpl activityRetainedCImpl;
+
+    private final ViewModelCImpl viewModelCImpl = this;
+
+    private Provider<MainViewModel> mainViewModelProvider;
+
+    private ViewModelCImpl(SingletonCImpl singletonCImpl,
+        ActivityRetainedCImpl activityRetainedCImpl, SavedStateHandle savedStateHandleParam,
+        ViewModelLifecycle viewModelLifecycleParam) {
+      this.singletonCImpl = singletonCImpl;
+      this.activityRetainedCImpl = activityRetainedCImpl;
+
+      initialize(savedStateHandleParam, viewModelLifecycleParam);
+
+    }
+
+    private GetTodayStatsUseCase getTodayStatsUseCase() {
+      return new GetTodayStatsUseCase(singletonCImpl.rideHistoryRepositoryImplProvider.get());
+    }
+
+    private ObserveSubscriptionAccessUseCase observeSubscriptionAccessUseCase() {
+      return new ObserveSubscriptionAccessUseCase(singletonCImpl.subscriptionRepositoryImplProvider.get());
+    }
+
+    private ObserveDriverSettingsUseCase observeDriverSettingsUseCase() {
+      return new ObserveDriverSettingsUseCase(singletonCImpl.driverSettingsRepositoryImplProvider.get());
+    }
+
+    private ToggleRadarUseCase toggleRadarUseCase() {
+      return new ToggleRadarUseCase(singletonCImpl.driverSettingsRepositoryImplProvider.get(), singletonCImpl.radarControllerImplProvider.get(), singletonCImpl.permissionsCheckerImplProvider.get());
+    }
+
+    private CheckPermissionsStatusUseCase checkPermissionsStatusUseCase() {
+      return new CheckPermissionsStatusUseCase(singletonCImpl.permissionsCheckerImplProvider.get());
+    }
+
+    private SaveDriverConfigUseCase saveDriverConfigUseCase() {
+      return new SaveDriverConfigUseCase(singletonCImpl.driverSettingsRepositoryImplProvider.get());
+    }
+
+    private CompleteOnboardingUseCase completeOnboardingUseCase() {
+      return new CompleteOnboardingUseCase(singletonCImpl.driverSettingsRepositoryImplProvider.get());
+    }
+
+    @SuppressWarnings("unchecked")
+    private void initialize(final SavedStateHandle savedStateHandleParam,
+        final ViewModelLifecycle viewModelLifecycleParam) {
+      this.mainViewModelProvider = new SwitchingProvider<>(singletonCImpl, activityRetainedCImpl, viewModelCImpl, 0);
+    }
+
+    @Override
+    public Map<Class<?>, javax.inject.Provider<ViewModel>> getHiltViewModelMap() {
+      return LazyClassKeyMap.<javax.inject.Provider<ViewModel>>of(Collections.<String, javax.inject.Provider<ViewModel>>singletonMap(LazyClassKeyProvider.com_radarcarioca_ui_MainViewModel, ((Provider) mainViewModelProvider)));
+    }
+
+    @Override
+    public Map<Class<?>, Object> getHiltViewModelAssistedMap() {
+      return Collections.<Class<?>, Object>emptyMap();
+    }
+
+    @IdentifierNameString
+    private static final class LazyClassKeyProvider {
+      static String com_radarcarioca_ui_MainViewModel = "com.radarcarioca.ui.MainViewModel";
+
+      @KeepFieldType
+      MainViewModel com_radarcarioca_ui_MainViewModel2;
+    }
+
+    private static final class SwitchingProvider<T> implements Provider<T> {
+      private final SingletonCImpl singletonCImpl;
+
+      private final ActivityRetainedCImpl activityRetainedCImpl;
+
+      private final ViewModelCImpl viewModelCImpl;
+
+      private final int id;
+
+      SwitchingProvider(SingletonCImpl singletonCImpl, ActivityRetainedCImpl activityRetainedCImpl,
+          ViewModelCImpl viewModelCImpl, int id) {
+        this.singletonCImpl = singletonCImpl;
+        this.activityRetainedCImpl = activityRetainedCImpl;
+        this.viewModelCImpl = viewModelCImpl;
+        this.id = id;
+      }
+
+      @SuppressWarnings("unchecked")
+      @Override
+      public T get() {
+        switch (id) {
+          case 0: // com.radarcarioca.ui.MainViewModel 
+          return (T) new MainViewModel(viewModelCImpl.getTodayStatsUseCase(), viewModelCImpl.observeSubscriptionAccessUseCase(), viewModelCImpl.observeDriverSettingsUseCase(), viewModelCImpl.toggleRadarUseCase(), viewModelCImpl.checkPermissionsStatusUseCase(), viewModelCImpl.saveDriverConfigUseCase(), viewModelCImpl.completeOnboardingUseCase());
+
+          default: throw new AssertionError(id);
+        }
+      }
+    }
+  }
+
+  private static final class ActivityRetainedCImpl extends RadarCariocaApp_HiltComponents.ActivityRetainedC {
+    private final SingletonCImpl singletonCImpl;
+
+    private final ActivityRetainedCImpl activityRetainedCImpl = this;
+
+    private Provider<ActivityRetainedLifecycle> provideActivityRetainedLifecycleProvider;
+
+    private ActivityRetainedCImpl(SingletonCImpl singletonCImpl,
+        SavedStateHandleHolder savedStateHandleHolderParam) {
+      this.singletonCImpl = singletonCImpl;
+
+      initialize(savedStateHandleHolderParam);
+
+    }
+
+    @SuppressWarnings("unchecked")
+    private void initialize(final SavedStateHandleHolder savedStateHandleHolderParam) {
+      this.provideActivityRetainedLifecycleProvider = DoubleCheck.provider(new SwitchingProvider<ActivityRetainedLifecycle>(singletonCImpl, activityRetainedCImpl, 0));
+    }
+
+    @Override
+    public ActivityComponentBuilder activityComponentBuilder() {
+      return new ActivityCBuilder(singletonCImpl, activityRetainedCImpl);
+    }
+
+    @Override
+    public ActivityRetainedLifecycle getActivityRetainedLifecycle() {
+      return provideActivityRetainedLifecycleProvider.get();
+    }
+
+    private static final class SwitchingProvider<T> implements Provider<T> {
+      private final SingletonCImpl singletonCImpl;
+
+      private final ActivityRetainedCImpl activityRetainedCImpl;
+
+      private final int id;
+
+      SwitchingProvider(SingletonCImpl singletonCImpl, ActivityRetainedCImpl activityRetainedCImpl,
+          int id) {
+        this.singletonCImpl = singletonCImpl;
+        this.activityRetainedCImpl = activityRetainedCImpl;
+        this.id = id;
+      }
+
+      @SuppressWarnings("unchecked")
+      @Override
+      public T get() {
+        switch (id) {
+          case 0: // dagger.hilt.android.ActivityRetainedLifecycle 
+          return (T) ActivityRetainedComponentManager_LifecycleModule_ProvideActivityRetainedLifecycleFactory.provideActivityRetainedLifecycle();
+
+          default: throw new AssertionError(id);
+        }
+      }
+    }
+  }
+
+  private static final class ServiceCImpl extends RadarCariocaApp_HiltComponents.ServiceC {
+    private final SingletonCImpl singletonCImpl;
+
+    private final ServiceCImpl serviceCImpl = this;
+
+    private ServiceCImpl(SingletonCImpl singletonCImpl, Service serviceParam) {
+      this.singletonCImpl = singletonCImpl;
+
+
+    }
+
+    private RecordRideDecisionUseCase recordRideDecisionUseCase() {
+      return new RecordRideDecisionUseCase(singletonCImpl.rideHistoryRepositoryImplProvider.get());
+    }
+
+    @Override
+    public void injectRadarAccessibilityService(
+        RadarAccessibilityService radarAccessibilityService) {
+    }
+
+    @Override
+    public void injectRadarForegroundService(RadarForegroundService radarForegroundService) {
+      injectRadarForegroundService2(radarForegroundService);
+    }
+
+    @CanIgnoreReturnValue
+    private RadarForegroundService injectRadarForegroundService2(RadarForegroundService instance) {
+      RadarForegroundService_MembersInjector.injectProcessRideOfferUseCase(instance, singletonCImpl.processRideOfferUseCaseProvider.get());
+      RadarForegroundService_MembersInjector.injectRecordRideDecisionUseCase(instance, recordRideDecisionUseCase());
+      RadarForegroundService_MembersInjector.injectGeoSecurityManager(instance, singletonCImpl.geoSecurityManagerProvider.get());
+      RadarForegroundService_MembersInjector.injectOverlayManager(instance, singletonCImpl.overlayManagerProvider.get());
+      RadarForegroundService_MembersInjector.injectFloatingButtonManager(instance, singletonCImpl.floatingButtonManagerProvider.get());
+      RadarForegroundService_MembersInjector.injectScreenshotPurgeManager(instance, singletonCImpl.screenshotPurgeManagerProvider.get());
+      RadarForegroundService_MembersInjector.injectDriverPreferences(instance, singletonCImpl.driverPreferencesProvider.get());
+      return instance;
+    }
+  }
+
+  private static final class SingletonCImpl extends RadarCariocaApp_HiltComponents.SingletonC {
+    private final ApplicationContextModule applicationContextModule;
+
+    private final SingletonCImpl singletonCImpl = this;
+
+    private Provider<BillingManager> billingManagerProvider;
+
+    private Provider<RadarDatabase> provideRadarDatabaseProvider;
+
+    private Provider<RideHistoryDao> provideRideHistoryDaoProvider;
+
+    private Provider<RideHistoryRepositoryImpl> rideHistoryRepositoryImplProvider;
+
+    private Provider<SubscriptionRepositoryImpl> subscriptionRepositoryImplProvider;
+
+    private Provider<DriverPreferences> driverPreferencesProvider;
+
+    private Provider<DriverSettingsRepositoryImpl> driverSettingsRepositoryImplProvider;
+
+    private Provider<RadarControllerImpl> radarControllerImplProvider;
+
+    private Provider<GeoFeatureDao> provideGeoFeatureDaoProvider;
+
+    private Provider<GeoRepositoryImpl> geoRepositoryImplProvider;
+
+    private Provider<GeoSecurityManager> geoSecurityManagerProvider;
+
+    private Provider<PermissionsCheckerImpl> permissionsCheckerImplProvider;
+
+    private Provider<FinancialCalculator> financialCalculatorProvider;
+
+    private Provider<GeocodingService> geocodingServiceProvider;
+
+    private Provider<ProcessRideOfferUseCase> processRideOfferUseCaseProvider;
+
+    private Provider<OverlayManager> overlayManagerProvider;
+
+    private Provider<FloatingButtonManager> floatingButtonManagerProvider;
+
+    private Provider<ScreenshotPurgeManager> screenshotPurgeManagerProvider;
+
+    private SingletonCImpl(ApplicationContextModule applicationContextModuleParam) {
+      this.applicationContextModule = applicationContextModuleParam;
+      initialize(applicationContextModuleParam);
+
+    }
+
+    private CheckRideSafetyUseCase checkRideSafetyUseCase() {
+      return new CheckRideSafetyUseCase(geoSecurityManagerProvider.get());
+    }
+
+    private CalculateRideProfitUseCase calculateRideProfitUseCase() {
+      return new CalculateRideProfitUseCase(financialCalculatorProvider.get());
+    }
+
+    @SuppressWarnings("unchecked")
+    private void initialize(final ApplicationContextModule applicationContextModuleParam) {
+      this.billingManagerProvider = DoubleCheck.provider(new SwitchingProvider<BillingManager>(singletonCImpl, 0));
+      this.provideRadarDatabaseProvider = DoubleCheck.provider(new SwitchingProvider<RadarDatabase>(singletonCImpl, 3));
+      this.provideRideHistoryDaoProvider = DoubleCheck.provider(new SwitchingProvider<RideHistoryDao>(singletonCImpl, 2));
+      this.rideHistoryRepositoryImplProvider = DoubleCheck.provider(new SwitchingProvider<RideHistoryRepositoryImpl>(singletonCImpl, 1));
+      this.subscriptionRepositoryImplProvider = DoubleCheck.provider(new SwitchingProvider<SubscriptionRepositoryImpl>(singletonCImpl, 4));
+      this.driverPreferencesProvider = DoubleCheck.provider(new SwitchingProvider<DriverPreferences>(singletonCImpl, 6));
+      this.driverSettingsRepositoryImplProvider = DoubleCheck.provider(new SwitchingProvider<DriverSettingsRepositoryImpl>(singletonCImpl, 5));
+      this.radarControllerImplProvider = DoubleCheck.provider(new SwitchingProvider<RadarControllerImpl>(singletonCImpl, 7));
+      this.provideGeoFeatureDaoProvider = DoubleCheck.provider(new SwitchingProvider<GeoFeatureDao>(singletonCImpl, 11));
+      this.geoRepositoryImplProvider = DoubleCheck.provider(new SwitchingProvider<GeoRepositoryImpl>(singletonCImpl, 10));
+      this.geoSecurityManagerProvider = DoubleCheck.provider(new SwitchingProvider<GeoSecurityManager>(singletonCImpl, 9));
+      this.permissionsCheckerImplProvider = DoubleCheck.provider(new SwitchingProvider<PermissionsCheckerImpl>(singletonCImpl, 8));
+      this.financialCalculatorProvider = DoubleCheck.provider(new SwitchingProvider<FinancialCalculator>(singletonCImpl, 13));
+      this.geocodingServiceProvider = DoubleCheck.provider(new SwitchingProvider<GeocodingService>(singletonCImpl, 14));
+      this.processRideOfferUseCaseProvider = DoubleCheck.provider(new SwitchingProvider<ProcessRideOfferUseCase>(singletonCImpl, 12));
+      this.overlayManagerProvider = DoubleCheck.provider(new SwitchingProvider<OverlayManager>(singletonCImpl, 15));
+      this.floatingButtonManagerProvider = DoubleCheck.provider(new SwitchingProvider<FloatingButtonManager>(singletonCImpl, 16));
+      this.screenshotPurgeManagerProvider = DoubleCheck.provider(new SwitchingProvider<ScreenshotPurgeManager>(singletonCImpl, 17));
+    }
+
+    @Override
+    public void injectRadarCariocaApp(RadarCariocaApp radarCariocaApp) {
+    }
+
+    @Override
+    public Set<Boolean> getDisableFragmentGetContextFix() {
+      return Collections.<Boolean>emptySet();
+    }
+
+    @Override
+    public ActivityRetainedComponentBuilder retainedComponentBuilder() {
+      return new ActivityRetainedCBuilder(singletonCImpl);
+    }
+
+    @Override
+    public ServiceComponentBuilder serviceComponentBuilder() {
+      return new ServiceCBuilder(singletonCImpl);
+    }
+
+    private static final class SwitchingProvider<T> implements Provider<T> {
+      private final SingletonCImpl singletonCImpl;
+
+      private final int id;
+
+      SwitchingProvider(SingletonCImpl singletonCImpl, int id) {
+        this.singletonCImpl = singletonCImpl;
+        this.id = id;
+      }
+
+      @SuppressWarnings("unchecked")
+      @Override
+      public T get() {
+        switch (id) {
+          case 0: // com.radarcarioca.billing.BillingManager 
+          return (T) new BillingManager(ApplicationContextModule_ProvideContextFactory.provideContext(singletonCImpl.applicationContextModule));
+
+          case 1: // com.radarcarioca.data.repository.RideHistoryRepositoryImpl 
+          return (T) new RideHistoryRepositoryImpl(singletonCImpl.provideRideHistoryDaoProvider.get());
+
+          case 2: // com.radarcarioca.data.local.RideHistoryDao 
+          return (T) DatabaseModule_ProvideRideHistoryDaoFactory.provideRideHistoryDao(singletonCImpl.provideRadarDatabaseProvider.get());
+
+          case 3: // com.radarcarioca.data.local.RadarDatabase 
+          return (T) DatabaseModule_ProvideRadarDatabaseFactory.provideRadarDatabase(ApplicationContextModule_ProvideContextFactory.provideContext(singletonCImpl.applicationContextModule));
+
+          case 4: // com.radarcarioca.billing.SubscriptionRepositoryImpl 
+          return (T) new SubscriptionRepositoryImpl(singletonCImpl.billingManagerProvider.get());
+
+          case 5: // com.radarcarioca.data.local.DriverSettingsRepositoryImpl 
+          return (T) new DriverSettingsRepositoryImpl(singletonCImpl.driverPreferencesProvider.get());
+
+          case 6: // com.radarcarioca.data.local.DriverPreferences 
+          return (T) new DriverPreferences(ApplicationContextModule_ProvideContextFactory.provideContext(singletonCImpl.applicationContextModule));
+
+          case 7: // com.radarcarioca.service.RadarControllerImpl 
+          return (T) new RadarControllerImpl(ApplicationContextModule_ProvideContextFactory.provideContext(singletonCImpl.applicationContextModule));
+
+          case 8: // com.radarcarioca.service.PermissionsCheckerImpl 
+          return (T) new PermissionsCheckerImpl(ApplicationContextModule_ProvideContextFactory.provideContext(singletonCImpl.applicationContextModule), singletonCImpl.geoSecurityManagerProvider.get());
+
+          case 9: // com.radarcarioca.geo.GeoSecurityManager 
+          return (T) new GeoSecurityManager(ApplicationContextModule_ProvideContextFactory.provideContext(singletonCImpl.applicationContextModule), singletonCImpl.geoRepositoryImplProvider.get());
+
+          case 10: // com.radarcarioca.data.repository.GeoRepositoryImpl 
+          return (T) new GeoRepositoryImpl(singletonCImpl.provideGeoFeatureDaoProvider.get());
+
+          case 11: // com.radarcarioca.data.local.GeoFeatureDao 
+          return (T) DatabaseModule_ProvideGeoFeatureDaoFactory.provideGeoFeatureDao(singletonCImpl.provideRadarDatabaseProvider.get());
+
+          case 12: // com.radarcarioca.domain.usecase.ProcessRideOfferUseCase 
+          return (T) new ProcessRideOfferUseCase(singletonCImpl.checkRideSafetyUseCase(), singletonCImpl.calculateRideProfitUseCase(), singletonCImpl.financialCalculatorProvider.get(), singletonCImpl.driverPreferencesProvider.get(), singletonCImpl.geocodingServiceProvider.get());
+
+          case 13: // com.radarcarioca.financial.FinancialCalculator 
+          return (T) new FinancialCalculator();
+
+          case 14: // com.radarcarioca.service.GeocodingService 
+          return (T) new GeocodingService();
+
+          case 15: // com.radarcarioca.overlay.OverlayManager 
+          return (T) new OverlayManager(ApplicationContextModule_ProvideContextFactory.provideContext(singletonCImpl.applicationContextModule));
+
+          case 16: // com.radarcarioca.overlay.FloatingButtonManager 
+          return (T) new FloatingButtonManager(ApplicationContextModule_ProvideContextFactory.provideContext(singletonCImpl.applicationContextModule), singletonCImpl.provideRideHistoryDaoProvider.get(), singletonCImpl.provideGeoFeatureDaoProvider.get());
+
+          case 17: // com.radarcarioca.util.ScreenshotPurgeManager 
+          return (T) new ScreenshotPurgeManager(ApplicationContextModule_ProvideContextFactory.provideContext(singletonCImpl.applicationContextModule));
+
+          default: throw new AssertionError(id);
+        }
+      }
+    }
+  }
+}

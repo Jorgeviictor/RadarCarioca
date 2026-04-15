@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Radar Carioca — Diagrama de Arquitetura</title>
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:#060d1a;color:#e2e8f0;font-family:'Segoe UI',system-ui,sans-serif;min-height:100vh;padding:28px 20px}
+
+  .header{text-align:center;margin-bottom:32px}
+  .header-sub{font-size:11px;letter-spacing:5px;color:#334155;text-transform:uppercase;margin-bottom:8px}
+  .header h1{font-size:clamp(22px,3.5vw,38px);font-weight:800;background:linear-gradient(90deg,#ef4444,#f97316,#eab308);-webkit-background-clip:text;-webkit-text-fill-color:transparent;letter-spacing:-0.5px}
+  .header-desc{margin-top:6px;font-size:13px;color:#475569}
+
+  .main{display:flex;gap:20px;max-width:1440px;margin:0 auto;align-items:flex-start}
+  .layers-col{flex:1 1 0;min-width:0}
+  .sidebar{width:255px;flex-shrink:0;display:flex;flex-direction:column;gap:16px}
+
+  .col-label{font-size:10px;letter-spacing:4px;color:#334155;margin-bottom:12px;text-transform:uppercase}
+
+  .layer-wrap{position:relative;margin-bottom:5px}
+  .arrow-down{position:absolute;bottom:-13px;left:50%;transform:translateX(-50%);z-index:2;color:#1e293b;font-size:14px;line-height:1;pointer-events:none;user-select:none}
+
+  .layer{background:rgba(10,18,35,.9);border:1.5px solid #1a2438;border-radius:10px;padding:12px 16px;cursor:pointer;transition:all .18s ease}
+  .layer:hover{border-color:#2a3a55}
+  .layer.open{box-shadow:0 0 28px var(--lc,#22c55e25),inset 0 1px 0 var(--lc-faint,#22c55e20)}
+
+  .layer-header{display:flex;align-items:center;gap:10px}
+  .layer-icon{width:34px;height:34px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0}
+  .layer-meta{flex:1;min-width:0}
+  .layer-name{font-weight:700;font-size:12.5px;letter-spacing:.8px}
+  .layer-sub{font-size:10.5px;color:#475569;margin-top:1px}
+  .layer-chips{display:flex;gap:6px;align-items:center;flex-wrap:wrap}
+  .chip{font-size:10px;border-radius:4px;padding:2px 6px;border:1px solid transparent}
+  .chevron{color:#334155;font-size:11px;margin-left:8px;flex-shrink:0}
+
+  .items-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:8px;margin-top:14px}
+  .item-card{background:rgba(6,13,26,.8);border-radius:8px;padding:10px 12px;border:1px solid transparent;border-left-width:3px}
+  .item-head{display:flex;align-items:center;gap:7px;margin-bottom:5px}
+  .item-emoji{font-size:15px}
+  .item-name{font-weight:600;font-size:11px;color:#e2e8f0}
+  .item-desc{font-size:10px;color:#64748b;line-height:1.45}
+
+  /* Sidebar panels */
+  .panel{background:rgba(10,18,35,.9);border:1.5px solid #1a2438;border-radius:12px;padding:16px}
+  .panel-title{font-size:10px;letter-spacing:3px;color:#334155;text-transform:uppercase;margin-bottom:14px}
+
+  .flow-step{display:flex;align-items:flex-start;gap:8px;margin-bottom:4px}
+  .flow-bubble{width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;flex-shrink:0}
+  .flow-line{width:1px;height:8px;background:#1e293b;margin:2px auto}
+  .flow-text{padding-top:4px;font-size:10.5px;color:#94a3b8;line-height:1.35}
+
+  .overlay-row{display:flex;align-items:center;gap:10px;margin-bottom:9px}
+  .overlay-swatch{width:36px;height:16px;border-radius:4px;flex-shrink:0}
+  .overlay-label{font-size:11px;font-weight:700}
+  .overlay-desc{font-size:10px;color:#475569}
+
+  .legend-row{display:flex;align-items:center;gap:9px;margin-bottom:7px;cursor:pointer}
+  .legend-dot{width:10px;height:10px;border-radius:2px;flex-shrink:0}
+  .legend-text{font-size:11px;color:#64748b;transition:color .15s}
+
+  /* Footer */
+  .footer{max-width:1440px;margin:20px auto 0;background:rgba(10,18,35,.8);border:1px solid #1a2438;border-radius:10px;padding:12px 20px;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+  .footer-label{font-size:10px;color:#334155;letter-spacing:2px;text-transform:uppercase;margin-right:6px}
+  .footer-version{margin-left:auto;font-size:10px;color:#1e293b}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-sub">Clean Architecture · Android · Kotlin · Jetpack Compose</div>
+  <h1>Radar Carioca — Diagrama de Arquitetura em Camadas</h1>
+  <div class="header-desc">Assistente para motoristas de Uber/99 no Rio de Janeiro · clique nas camadas para expandir</div>
+</div>
+
+<div class="main">
+  <!-- LEFT: layers -->
+  <div class="layers-col">
+    <div class="col-label">▼ camadas (externo → dados)</div>
+    <div id="layer-stack"></div>
+  </div>
+
+  <!-- RIGHT: sidebar -->
+  <div class="sidebar">
+    <!-- Flow -->
+    <div class="panel">
+      <div class="panel-title">⚡ Ciclo de vida de uma corrida</div>
+      <div id="flow-steps"></div>
+    </div>
+    <!-- Overlay statuses -->
+    <div class="panel">
+      <div class="panel-title">🃏 Status do OverlayCard</div>
+      <div id="overlay-statuses"></div>
+    </div>
+    <!-- Legend -->
+    <div class="panel">
+      <div class="panel-title">🎨 Legenda de Camadas</div>
+      <div id="legend"></div>
+    </div>
+  </div>
+</div>
+
+<!-- Footer -->
+<div class="footer">
+  <span class="footer-label">Regra de Dependência:</span>
+  <span style="font-size:12px;font-weight:700;color:#a855f7">Presentation</span>
+  <span style="font-size:12px;color:#334155">→</span>
+  <span style="font-size:12px;font-weight:700;color:#22c55e">Domain</span>
+  <span style="font-size:12px;color:#334155">← implementado por →</span>
+  <span style="font-size:12px;font-weight:700;color:#3b82f6">Data</span>
+  <span style="font-size:12px;color:#334155">·</span>
+  <span style="font-size:12px;font-weight:700;color:#22c55e">Domain não depende de ninguém</span>
+  <span style="font-size:12px;color:#334155">·</span>
+  <span style="font-size:12px;font-weight:700;color:#94a3b8">Hilt conecta tudo</span>
+  <span class="footer-version">RadarCarioca v1.0</span>
+</div>
+
+<script>
+const LAYERS = [
+  {
+    id:"external", label:"EXTERNO", sublabel:"Apps de Terceiros",
+    color:"#ef4444", icon:"📱",
+    items:[
+      {icon:"🚗",name:"Uber App",desc:"Gera ofertas de corrida capturadas via Accessibility API"},
+      {icon:"🟡",name:"99 App",desc:"Gera ofertas de corrida capturadas via Accessibility API"},
+    ]
+  },
+  {
+    id:"services", label:"ANDROID SERVICES", sublabel:"Camada de Serviços Android",
+    color:"#f59e0b", icon:"⚙️",
+    items:[
+      {icon:"👁️",name:"RadarAccessibilityService",desc:"Captura ofertas em tempo real via Accessibility API"},
+      {icon:"🔄",name:"RadarForegroundService",desc:"Orquestrador principal — serviço persistente em foreground"},
+      {icon:"🔌",name:"BootReceiver",desc:"Auto-start automático ao reiniciar o dispositivo"},
+    ]
+  },
+  {
+    id:"presentation", label:"PRESENTATION", sublabel:"Jetpack Compose + ViewModel",
+    color:"#a855f7", icon:"🎨",
+    items:[
+      {icon:"📊",name:"MainViewModel",desc:"Gerencia estado da UI via StateFlow — sem lógica de negócio"},
+      {icon:"🖥️",name:"DashboardScreen",desc:"Tela principal: status do radar, estatísticas do turno"},
+      {icon:"🃏",name:"OverlayCard",desc:"Card glassmorphism flutuante: GREEN / YELLOW / RED / PURPLE"},
+      {icon:"💳",name:"PaywallScreen",desc:"Tela de assinatura — trial 14 dias + planos mensais/trimestrais"},
+      {icon:"🗺️",name:"Navigation Graph",desc:"Roteamento declarativo entre telas com Compose Navigation"},
+    ]
+  },
+  {
+    id:"geo", label:"GEO ENGINE", sublabel:"Motor Geoespacial",
+    color:"#f97316", icon:"🌐",
+    items:[
+      {icon:"📍",name:"GeoSecurityManager",desc:"Algoritmos Haversine + Ray-casting · cache em memória · meta <50ms"},
+      {icon:"🔍",name:"GeocodingService",desc:"Converte endereço de texto em coordenadas lat/lng (Mapbox)"},
+      {icon:"📂",name:"mapa_faccoes_rj.geojson",desc:"Base geográfica offline: facções RJ · Points, LineStrings, Polygons"},
+    ]
+  },
+  {
+    id:"domain", label:"DOMAIN", sublabel:"Kotlin Puro — Zero Android — Núcleo da Arquitetura",
+    color:"#22c55e", icon:"💎",
+    items:[
+      {icon:"📋",name:"GeoRepository",desc:"Interface de contrato para dados geográficos"},
+      {icon:"📋",name:"RideHistoryRepository",desc:"Interface de contrato para histórico de corridas"},
+      {icon:"🛡️",name:"CheckRideSafetyUseCase",desc:"Verifica segurança geográfica do destino"},
+      {icon:"💰",name:"CalculateRideProfitUseCase",desc:"Calcula lucro líquido real (inclui deadhead + combustível)"},
+      {icon:"⚡",name:"ProcessRideOfferUseCase",desc:"Orquestra análise completa: geo + financeira → RideAnalysis"},
+      {icon:"📦",name:"Entities",desc:"GeoFeature · RideOffer · RideAnalysis · FinancialResult · DriverConfig"},
+    ]
+  },
+  {
+    id:"data", label:"DATA", sublabel:"Room · DataStore · Mappers",
+    color:"#3b82f6", icon:"🗄️",
+    items:[
+      {icon:"🔧",name:"GeoRepositoryImpl",desc:"Implementa GeoRepository — único ponto que conhece GeoFeatureDao"},
+      {icon:"🔧",name:"RideHistoryRepositoryImpl",desc:"Implementa RideHistoryRepository — converte entities via mapper"},
+      {icon:"🔁",name:"GeoFeatureMapper · RideRecordMapper",desc:"Converte Entity Room ↔ Domain Entity sem vazar framework"},
+      {icon:"🗃️",name:"GeoFeatureDao · RideHistoryDao",desc:"Queries SQL Room com Flow reativo"},
+      {icon:"💾",name:"RadarDatabase",desc:"Room Database (SQLite) — 2 tabelas: geo_features + ride_history"},
+      {icon:"⚙️",name:"DriverPreferences",desc:"DataStore — combustível, metas, configurações do motorista"},
+    ]
+  },
+  {
+    id:"di", label:"DI — HILT", sublabel:"Injeção de Dependências",
+    color:"#94a3b8", icon:"💉",
+    items:[
+      {icon:"📦",name:"DatabaseModule",desc:"Fornece Room Database, GeoFeatureDao e RideHistoryDao (@Singleton)"},
+      {icon:"🔗",name:"RepositoryModule",desc:"@Binds: GeoRepository→GeoRepositoryImpl · RideHistoryRepository→Impl"},
+    ]
+  },
+];
+
+const FLOW = [
+  {icon:"📱",label:"Uber/99 exibe oferta",color:"#ef4444"},
+  {icon:"👁️",label:"AccessibilityService captura texto",color:"#f59e0b"},
+  {icon:"🔄",label:"ForegroundService recebe via SharedFlow",color:"#f59e0b"},
+  {icon:"⚡",label:"ProcessRideOfferUseCase invocado",color:"#22c55e"},
+  {icon:"🔍",label:"GeocodingService → lat/lng",color:"#f97316"},
+  {icon:"🛡️",label:"CheckRideSafetyUseCase",color:"#22c55e"},
+  {icon:"💰",label:"CalculateRideProfitUseCase",color:"#22c55e"},
+  {icon:"🃏",label:"OverlayCard exibe status final",color:"#a855f7"},
+  {icon:"💾",label:"RideHistoryRepository persiste",color:"#3b82f6"},
+];
+
+const OVERLAY = [
+  {color:"#22c55e",label:"GREEN", desc:"Lucrativo + Seguro → Aceitar"},
+  {color:"#eab308",label:"YELLOW",desc:"Limítrofe ou atenção (500m de área)"},
+  {color:"#ef4444",label:"RED",  desc:"Abaixo da meta financeira"},
+  {color:"#a855f7",label:"PURPLE",desc:"Área de risco (ignora finanças)"},
+];
+
+let openLayer = "domain";
+
+function hex(c,a){
+  const r=parseInt(c.slice(1,3),16),g=parseInt(c.slice(3,5),16),b=parseInt(c.slice(5,7),16);
+  return `rgba(${r},${g},${b},${a})`;
+}
+
+function renderLayers(){
+  const stack = document.getElementById("layer-stack");
+  stack.innerHTML = LAYERS.map((layer,idx)=>{
+    const isOpen = openLayer===layer.id;
+    const borderColor = isOpen ? layer.color : "#1a2438";
+    const bg = isOpen ? hex(layer.color,.1) : "rgba(10,18,35,.9)";
+    const shadow = isOpen ? `0 0 28px ${hex(layer.color,.15)},inset 0 1px 0 ${hex(layer.color,.12)}` : "none";
+
+    const previewChips = layer.items.slice(0,3).map(item=>
+      `<span class="chip" style="color:${layer.color};background:${hex(layer.color,.12)};border-color:${hex(layer.color,.25)}">${item.name.split(" ")[0]}</span>`
+    ).join("");
+    const moreChip = (!isOpen && layer.items.length>3) ? `<span style="font-size:10px;color:#334155">+${layer.items.length-3}</span>` : "";
+
+    const itemsGrid = isOpen ? `
+      <div class="items-grid">
+        ${layer.items.map(item=>`
+          <div class="item-card" style="border-color:${hex(layer.color,.22)};border-left-color:${layer.color}">
+            <div class="item-head">
+              <span class="item-emoji">${item.icon}</span>
+              <span class="item-name">${item.name}</span>
+            </div>
+            <div class="item-desc">${item.desc}</div>
+          </div>
+        `).join("")}
+      </div>` : "";
+
+    const arrow = idx<LAYERS.length-1 ? `<div class="arrow-down">▼</div>` : "";
+
+    return `
+      <div class="layer-wrap">
+        ${arrow}
+        <div class="layer ${isOpen?"open":""}"
+          style="border-color:${borderColor};background:${bg};box-shadow:${shadow}"
+          onclick="toggleLayer('${layer.id}')">
+          <div class="layer-header">
+            <div class="layer-icon" style="background:${hex(layer.color,.15)};border:1px solid ${hex(layer.color,.45)}">${layer.icon}</div>
+            <div class="layer-meta">
+              <div class="layer-name" style="color:${layer.color}">${layer.label}</div>
+              <div class="layer-sub">${layer.sublabel}</div>
+            </div>
+            ${!isOpen ? `<div class="layer-chips">${previewChips}${moreChip}</div>` : ""}
+            <span class="chevron">${isOpen?"▲":"▼"}</span>
+          </div>
+          ${itemsGrid}
+        </div>
+      </div>`;
+  }).join("");
+}
+
+function toggleLayer(id){
+  openLayer = openLayer===id ? null : id;
+  renderLayers();
+  renderLegend();
+}
+
+function renderFlow(){
+  document.getElementById("flow-steps").innerHTML = FLOW.map((s,i)=>`
+    <div class="flow-step">
+      <div style="display:flex;flex-direction:column;align-items:center;flex-shrink:0">
+        <div class="flow-bubble" style="background:${hex(s.color,.15)};border:1.5px solid ${hex(s.color,.55)}">${s.icon}</div>
+        ${i<FLOW.length-1?`<div class="flow-line"></div>`:""}
+      </div>
+      <div class="flow-text">${s.label}</div>
+    </div>`).join("");
+}
+
+function renderOverlay(){
+  document.getElementById("overlay-statuses").innerHTML = OVERLAY.map(s=>`
+    <div class="overlay-row">
+      <div class="overlay-swatch" style="background:${hex(s.color,.2)};border:1.5px solid ${s.color}"></div>
+      <div>
+        <div class="overlay-label" style="color:${s.color}">${s.label}</div>
+        <div class="overlay-desc">${s.desc}</div>
+      </div>
+    </div>`).join("");
+}
+
+function renderLegend(){
+  document.getElementById("legend").innerHTML = LAYERS.map(l=>`
+    <div class="legend-row" onclick="toggleLayer('${l.id}')">
+      <div class="legend-dot" style="background:${l.color};${openLayer===l.id?`box-shadow:0 0 6px ${l.color}`:""}"></div>
+      <span class="legend-text" style="color:${openLayer===l.id?l.color:"#64748b"};font-weight:${openLayer===l.id?700:400}">${l.label}</span>
+    </div>`).join("");
+}
+
+renderLayers();
+renderFlow();
+renderOverlay();
+renderLegend();
+</script>
+</body>
+</html>

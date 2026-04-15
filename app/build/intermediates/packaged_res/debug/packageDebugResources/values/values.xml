@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="accessibility_service_description">
+        O Radar Carioca lê automaticamente as ofertas de corrida dos apps Uber e 99
+        para calcular o lucro real e alertar sobre áreas de risco no Rio de Janeiro.
+        Nenhum dado pessoal de passageiros é armazenado.
+    </string>
+    <string name="accessibility_service_label">Radar Carioca — Monitor de Corridas</string>
+    <string name="app_name">Radar Carioca</string>
+    <string name="channel_id">radar_carioca_foreground</string>
+    <string name="notification_channel_desc">Mantém o monitoramento de ofertas ativo durante o turno</string>
+    <string name="notification_channel_name">Radar Carioca — Watcher Ativo</string>
+    <string name="notification_text">Monitorando Uber e 99 — GeoJSON carregado</string>
+    <string name="notification_title">Radar Carioca Ativo</string>
+    <style name="Theme.RadarCarioca" parent="android:Theme.Material.Light.NoActionBar">
+        <item name="android:statusBarColor">@android:color/transparent</item>
+        <item name="android:navigationBarColor">@android:color/transparent</item>
+        <item name="android:windowBackground">@android:color/black</item>
+    </style>
+</resources>
